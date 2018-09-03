@@ -1,4 +1,4 @@
-package com.xhhold.musicblur
+package com.xhhold.musicblur.service
 
 import android.app.Service
 import android.content.BroadcastReceiver
@@ -18,6 +18,9 @@ import android.graphics.Bitmap
 import android.net.Uri
 import com.xhhold.musicblur.manager.BlurManager
 import android.media.AudioManager
+import com.xhhold.musicblur.IMediaController
+import com.xhhold.musicblur.IMediaControllerCallback
+import com.xhhold.musicblur.R
 
 
 class PlayerService : Service(), IMedia, AudioManager.OnAudioFocusChangeListener {
@@ -25,6 +28,8 @@ class PlayerService : Service(), IMedia, AudioManager.OnAudioFocusChangeListener
     private val iBinder = MediaControllerBinder()
     private val iMediaControllerCallbacks = ArrayList<IMediaControllerCallback>()
     private val musicList = ArrayList<MusicInfo>()
+
+    //private val audioFocusRequest: AudioFocusRequest=AudioFocusRequest.Builder()
 
     private var mediaNotificationManager: MediaNotificationManager? = null
     private var mediaPlayerManager: MediaPlayerManager? = null

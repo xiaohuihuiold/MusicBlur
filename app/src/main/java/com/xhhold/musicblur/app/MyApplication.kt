@@ -8,7 +8,7 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import com.squareup.leakcanary.LeakCanary
 import com.squareup.leakcanary.RefWatcher
-import com.xhhold.musicblur.PlayerService
+import com.xhhold.musicblur.service.PlayerService
 import com.xhhold.musicblur.handler.CrashHandler
 import com.xhhold.musicblur.manager.BlurManager
 
