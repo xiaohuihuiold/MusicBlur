@@ -13,6 +13,7 @@ import android.view.*
 import android.widget.Toast
 import com.xhhold.musicblur.R
 import com.xhhold.musicblur.manager.BlurManager
+import com.xhhold.musicblur.util.PermissionUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -20,10 +21,14 @@ import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
+    private val REQUEST_CODE_STORAGE = 1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        requestPermissions(REQUEST_CODE_STORAGE, PermissionUtil.PERMISSION_STORAGE)
 
         applyBlur(nav_view)
         applyBlurAndOffset(btn_change, btn_auto)
@@ -61,6 +66,13 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         btn_auto.setOnClickListener {
             play()
+        }
+    }
+
+    override fun onPermissions(requestCode: Int, isGranted: Boolean) {
+        super.onPermissions(requestCode, isGranted)
+        if (isGranted && requestCode == REQUEST_CODE_STORAGE) {
+
         }
     }
 

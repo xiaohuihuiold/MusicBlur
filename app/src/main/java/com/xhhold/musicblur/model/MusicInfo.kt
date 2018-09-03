@@ -4,19 +4,23 @@ import android.graphics.Bitmap
 import android.os.Parcel
 import android.os.Parcelable
 
-data class MusicInfo(var name: String, var artist: String, var path: String, var albumImage: Bitmap)
+data class MusicInfo(var name: String?, var artist: String?, var path: String?, var albumID: Int,
+                     var
+                     albumImage: Bitmap?)
     : Parcelable {
 
     constructor(parcel: Parcel) : this(
             parcel.readString(),
             parcel.readString(),
             parcel.readString(),
+            parcel.readInt(),
             parcel.readParcelable(Bitmap::class.java.classLoader))
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(name)
         parcel.writeString(artist)
         parcel.writeString(path)
+        parcel.writeInt(albumID)
         parcel.writeParcelable(albumImage, flags)
     }
 

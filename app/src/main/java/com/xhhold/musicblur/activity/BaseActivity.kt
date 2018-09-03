@@ -5,9 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
 import android.os.PersistableBundle
+import android.provider.Settings
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
@@ -18,6 +20,11 @@ import com.xhhold.musicblur.PlayerService
 import com.xhhold.musicblur.app.ActivityManager
 import com.xhhold.musicblur.manager.BlurManager
 import com.xhhold.musicblur.model.MusicInfo
+import android.support.annotation.NonNull
+import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+import android.support.v7.app.AlertDialog
+import com.xhhold.musicblur.R
+import com.xhhold.musicblur.util.PermissionUtil
 
 
 abstract class BaseActivity : AppCompatActivity(), ServiceConnection, IMediaControllerCallback {
@@ -40,6 +47,49 @@ abstract class BaseActivity : AppCompatActivity(), ServiceConnection, IMediaCont
             isFirst = false
         }
     }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        onPermissions(requestCode, PermissionUtil.checkPermissions(grantResults))
+    }
+
+    open protected fun onPermissions(requestCode: Int, isGranted: Boolean) {
+        if (!isGranted) {
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage(getString(R.string.activity_base_dialog_permission_message))
+            builder.setPositiveButton(getString(R.string.activity_base_dialog_permission_manual)) { dialog, which ->
+                val intent = Intent()
+                intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                intent.addCategory(Intent.CATEGORY_DEFAULT)
+                intent.data = Uri.parse("package:$packageName")
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+                startActivity(intent)
+            }
+            builder.setNegativeButton(getString(R.string.base_cancel)) { dialog, which -> finish() }
+            builder.show()
+        }
+    }
+
+    /**
+     *
+     * 注册权限.
+     *
+     * 创建时间: 2018/3/15 0015
+     * <br></br>
+     *
+     *注册权限
+     *
+     * @param requestCode 注册code
+     * @param permissions 需要注册的权限
+     * @return boolean true为已经授权
+     */
+
+    fun requestPermissions(requestCode: Int, permissions: Array<String>): Boolean {
+        return PermissionUtil.request(this, permissions, requestCode)
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -89,7 +139,7 @@ abstract class BaseActivity : AppCompatActivity(), ServiceConnection, IMediaCont
         iMediaController?.previous()
     }
 
-    fun seekTo(time: Long) {
+    fun seekTo(time: Int) {
         iMediaController?.seekTo(time)
     }
 
@@ -105,11 +155,11 @@ abstract class BaseActivity : AppCompatActivity(), ServiceConnection, IMediaCont
         return iMediaController?.isLooping ?: false
     }
 
-    fun getMusicCurrentTime(): Long {
+    fun getMusicCurrentTime(): Int {
         return iMediaController?.musicCurrentTime ?: 0
     }
 
-    fun getMusicDurationTime(): Long {
+    fun getMusicDurationTime(): Int {
         return iMediaController?.musicDurationTime ?: 0
     }
 

@@ -76,13 +76,17 @@ class BlurManager private constructor() {
                 w = bith * temp
                 x = (bitw - w) / 2.0f
             }
-            val bitmap = Bitmap.createBitmap(newBitmap, x.toInt(), y.toInt(), w.toInt(), h.toInt())
-            this.oldBitmap = this.newBitmap
-            this.newBitmap = Bitmap.createScaledBitmap(rsBlur(bitmap, 25, 0.20f), width, height,
-                    false)
-            bitmap.recycle()
-            isDark = ColorUtil.isShouldDark(Palette.from(newBitmap).clearFilters().generate())
-            update()
+            if (x < 0 || y < 0 || w <= 0 || h <= 0) {
+
+            } else {
+                val bitmap = Bitmap.createBitmap(newBitmap, x.toInt(), y.toInt(), w.toInt(), h.toInt())
+                this.oldBitmap = this.newBitmap
+                this.newBitmap = Bitmap.createScaledBitmap(rsBlur(bitmap, 25, 0.20f), width, height,
+                        false)
+                bitmap.recycle()
+                isDark = ColorUtil.isShouldDark(Palette.from(newBitmap).clearFilters().generate())
+                update()
+            }
         }
     }
 
@@ -117,7 +121,7 @@ class BlurManager private constructor() {
     private fun refreshWH() {
         val displayMetrics = MyApplication.context.resources.displayMetrics
         width = displayMetrics.widthPixels
-        height = displayMetrics.heightPixels + ScreenUtil.getNavigationBarHeight()+ScreenUtil.getStatusBarHeight()
+        height = displayMetrics.heightPixels + ScreenUtil.getNavigationBarHeight() + ScreenUtil.getStatusBarHeight()
         Log.e("WH", "w:$width,h:$height")
     }
 }

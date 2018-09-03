@@ -9,6 +9,13 @@
     <string name="title_activity_player">PlayerActivity</string>
     <string name="activity_bug">Bug</string>
 
+    <string name="base_prompt">提示</string>
+    <string name="base_enter">确定</string>
+    <string name="base_cancel">取消</string>
+    <string name="base_back">返回</string>
+    <string name="base_yes">是</string>
+    <string name="base_no">否</string>
+
     <string name="log_message_error">错误信息:</string>
     <string name="log_message_nulcrash">NUL启动器崩溃:</string>
     <string name="log_message_phone_brand">手机品牌:</string>
@@ -17,4 +24,8 @@
     <string name="log_message_phone_ver">安卓版本:</string>
     <string name="log_message_phone_appver">软件版本:</string>
     <string name="service_music_player">MusicPlayerService</string>
+
+    <string name="activity_base_dialog_permission_message">缺失权限可能会导致运行问题，请到“应用信息 -> 权限” 中手动授予</string>
+    <string name="activity_base_dialog_permission_manual">手动授权</string>
+    <string name="activity_base_toast_repeat_operation">授权成功，请重新进行刚才的操作</string>
 </resources>
