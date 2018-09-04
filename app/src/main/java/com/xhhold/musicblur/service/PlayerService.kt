@@ -69,7 +69,7 @@ class PlayerService : Service(), IMedia, AudioManager.OnAudioFocusChangeListener
                 val albumId = cursor?.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID))
                 //Log.e("name",name)
                 if (path?.toLowerCase()?.indexOf("netease") ?: -1 > 0) {
-                    musicList.add(MusicInfo(name, artist, path, albumId ?: 0, null))
+                    musicList.add(MusicInfo(name, artist, path, albumId ?: 0))
                 }
             } while (cursor?.moveToNext() == true)
             cursor?.close()
@@ -88,8 +88,9 @@ class PlayerService : Service(), IMedia, AudioManager.OnAudioFocusChangeListener
     override fun onDestroy() {
         super.onDestroy()
         runn = false
-        unregisterReceiver(mediaControllerBroadcastReceiver)
+        mediaPlayerManager?.stop()
         iMediaControllerCallbacks.clear()
+        unregisterReceiver(mediaControllerBroadcastReceiver)
     }
 
     override fun next() {

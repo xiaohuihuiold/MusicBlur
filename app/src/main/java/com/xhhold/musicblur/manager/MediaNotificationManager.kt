@@ -12,13 +12,14 @@ import com.xhhold.musicblur.activity.PlayerActivity
 import com.xhhold.musicblur.app.MyApplication
 import com.xhhold.musicblur.model.MusicInfo
 import com.xhhold.musicblur.util.ActionUtil
+import java.lang.ref.WeakReference
 
 class MediaNotificationManager private constructor() {
 
     private val CHANNEL_ID = "PlayerServiceChannel"
     private val CHANNEL_NAME = "PlayerService"
 
-    private var service: Service? = null
+    private var service: WeakReference<Service>? = null
 
     private var mediaStyle: Notification.MediaStyle? = null
     private var manager: NotificationManager? = null
@@ -35,22 +36,22 @@ class MediaNotificationManager private constructor() {
         }
     }
 
-    fun init(service: Service): MediaNotificationManager {
-        this.service = service
-        manager = service.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    init {
+        manager = MyApplication.context.getSystemService(Context.NOTIFICATION_SERVICE) as
+                NotificationManager
         mediaStyle = Notification.MediaStyle()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, android.app
                     .NotificationManager.IMPORTANCE_NONE)
             manager?.createNotificationChannel(channel)
-            builder = Notification.Builder(service, CHANNEL_ID)
+            builder = Notification.Builder(MyApplication.context, CHANNEL_ID)
             builder?.setColorized(true)
         } else {
-            builder = Notification.Builder(service)
+            builder = Notification.Builder(MyApplication.context)
         }
-        builder?.setContentIntent(PendingIntent.getActivity(service, 0, Intent(service,
+        builder?.setContentIntent(PendingIntent.getActivity(MyApplication.context, 0, Intent(MyApplication.context,
                 PlayerActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT))
-        builder?.setLargeIcon(BitmapFactory.decodeStream(service.assets.open
+        builder?.setLargeIcon(BitmapFactory.decodeStream(MyApplication.context.assets.open
         ("images/image1.jpg")))
         builder?.setSmallIcon(R.drawable.ic_launcher_foreground)
         builder?.setContentTitle("标题")
@@ -58,16 +59,16 @@ class MediaNotificationManager private constructor() {
         builder?.setTicker("通知")
 
         actionPrevious = Notification.Action.Builder(R.drawable.ic_skip_previous, "",
-                PendingIntent.getBroadcast(service, 0, Intent(ActionUtil.ACTION_NOTIFY_PREVIOUS),
+                PendingIntent.getBroadcast(MyApplication.context, 0, Intent(ActionUtil.ACTION_NOTIFY_PREVIOUS),
                         PendingIntent.FLAG_UPDATE_CURRENT)).build()
         actionPlay = Notification.Action.Builder(R.drawable.ic_play, "",
-                PendingIntent.getBroadcast(service, 0, Intent(ActionUtil.ACTION_NOTIFY_PLAY),
+                PendingIntent.getBroadcast(MyApplication.context, 0, Intent(ActionUtil.ACTION_NOTIFY_PLAY),
                         PendingIntent.FLAG_UPDATE_CURRENT)).build()
         actionPause = Notification.Action.Builder(R.drawable.ic_pause, "",
-                PendingIntent.getBroadcast(service, 0, Intent(ActionUtil.ACTION_NOTIFY_PAUSE),
+                PendingIntent.getBroadcast(MyApplication.context, 0, Intent(ActionUtil.ACTION_NOTIFY_PAUSE),
                         PendingIntent.FLAG_UPDATE_CURRENT)).build()
         actionNext = Notification.Action.Builder(R.drawable.ic_skip_next, "",
-                PendingIntent.getBroadcast(service, 0, Intent(ActionUtil.ACTION_NOTIFY_NEXT),
+                PendingIntent.getBroadcast(MyApplication.context, 0, Intent(ActionUtil.ACTION_NOTIFY_NEXT),
                         PendingIntent.FLAG_UPDATE_CURRENT)).build()
 
         builder?.setActions(actionPrevious, actionPlay, actionNext)
@@ -75,11 +76,15 @@ class MediaNotificationManager private constructor() {
         builder?.setStyle(mediaStyle)
 
         mediaStyle?.setShowActionsInCompactView(0, 1, 2)
-        val session = MediaSession(service, "sess")
+        val session = MediaSession(MyApplication.context, "sess")
         mediaStyle?.setMediaSession(session.sessionToken)
         builder?.setVisibility(Notification.VISIBILITY_PUBLIC)
         //notification = builder?.build()
         updateNotification()
+    }
+
+    fun init(service: Service): MediaNotificationManager {
+        this.service = WeakReference(service)
         return this
     }
 
@@ -133,7 +138,7 @@ class MediaNotificationManager private constructor() {
     }
 
     private fun updateNotification() {
-        service?.startForeground(1, builder?.build())
+        service?.get()?.startForeground(1, builder?.build())
     }
 
 }
