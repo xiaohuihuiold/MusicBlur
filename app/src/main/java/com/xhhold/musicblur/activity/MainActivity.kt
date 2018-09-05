@@ -65,7 +65,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
 
         btn_auto.setOnClickListener {
-            play()
+            exitApp()
         }
     }
 

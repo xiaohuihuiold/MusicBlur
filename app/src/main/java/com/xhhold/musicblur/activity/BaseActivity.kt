@@ -109,7 +109,7 @@ abstract class BaseActivity : AppCompatActivity(), ServiceConnection, IMediaCont
 
     }
 
-    override fun onUpdateTime(current: Long, duration: Long) {
+    override fun onUpdateTime(current: Int, duration: Int) {
 
     }
 

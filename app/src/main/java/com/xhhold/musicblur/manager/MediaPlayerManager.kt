@@ -8,6 +8,7 @@ class MediaPlayerManager private constructor() : MediaPlayer.OnCompletionListene
     private var iMedia: WeakReference<IMedia?>? = null
     private var mediaPlayer: MediaPlayer? = null
     private var path: String? = null
+    private var isPrepared = false
 
     companion object {
         val INSTANCE by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
@@ -27,6 +28,7 @@ class MediaPlayerManager private constructor() : MediaPlayer.OnCompletionListene
         mediaPlayer?.setDataSource(path)
         mediaPlayer?.prepareAsync()
         mediaPlayer?.setOnPreparedListener {
+            isPrepared = true
             mediaPlayer?.start()
             iMedia?.get()?.play()
         }
@@ -41,9 +43,11 @@ class MediaPlayerManager private constructor() : MediaPlayer.OnCompletionListene
     }
 
     fun stop() {
+        isPrepared = false
         mediaPlayer?.stop()
         mediaPlayer?.release()
         mediaPlayer = null
+
     }
 
     fun seekTo(time: Int) {
@@ -63,10 +67,12 @@ class MediaPlayerManager private constructor() : MediaPlayer.OnCompletionListene
     }
 
     fun getMusicCurrentTime(): Int {
+        if (!isPrepared) return 0
         return mediaPlayer?.currentPosition ?: 0
     }
 
     fun getMusicDurationTime(): Int {
+        if (!isPrepared) return 0
         return mediaPlayer?.duration ?: 0
     }
 

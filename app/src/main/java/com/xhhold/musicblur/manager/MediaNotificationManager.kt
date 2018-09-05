@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaMetadata
 import android.media.session.MediaSession
 import android.os.Build
 import com.xhhold.musicblur.R
@@ -29,6 +30,9 @@ class MediaNotificationManager private constructor() {
     private var actionPlay: Notification.Action? = null
     private var actionPause: Notification.Action? = null
     private var actionNext: Notification.Action? = null
+    private var session: MediaSession? = null
+
+    private var lrcBuild: Notification.Builder? = null
 
     companion object {
         val INSTANCE by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
@@ -46,8 +50,15 @@ class MediaNotificationManager private constructor() {
             manager?.createNotificationChannel(channel)
             builder = Notification.Builder(MyApplication.context, CHANNEL_ID)
             builder?.setColorized(true)
+
+            channel = NotificationChannel("LRC", CHANNEL_NAME, android.app
+                    .NotificationManager.IMPORTANCE_UNSPECIFIED)
+            manager?.createNotificationChannel(channel)
+            lrcBuild = Notification.Builder(MyApplication.context, "LRC")
+            lrcBuild?.setSmallIcon(R.drawable.ic_launcher_foreground)
         } else {
             builder = Notification.Builder(MyApplication.context)
+            lrcBuild = Notification.Builder(MyApplication.context)
         }
         builder?.setContentIntent(PendingIntent.getActivity(MyApplication.context, 0, Intent(MyApplication.context,
                 PlayerActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT))
@@ -76,8 +87,9 @@ class MediaNotificationManager private constructor() {
         builder?.setStyle(mediaStyle)
 
         mediaStyle?.setShowActionsInCompactView(0, 1, 2)
-        val session = MediaSession(MyApplication.context, "sess")
-        mediaStyle?.setMediaSession(session.sessionToken)
+        session = MediaSession(MyApplication.context, "sess")
+        session?.isActive=true
+        mediaStyle?.setMediaSession(session?.sessionToken)
         builder?.setVisibility(Notification.VISIBILITY_PUBLIC)
         //notification = builder?.build()
         updateNotification()
@@ -114,6 +126,12 @@ class MediaNotificationManager private constructor() {
 
     fun setText(text: String?) {
         setText(text, true)
+    }
+
+    fun update(lrc: String?,lrcTran:String?) {
+        lrcBuild?.setContentTitle(lrc)
+        lrcBuild?.setContentText(lrcTran)
+        manager?.notify(2, lrcBuild?.build())
     }
 
     private fun setAlbumBitmap(bitmap: Bitmap?, update: Boolean) {
