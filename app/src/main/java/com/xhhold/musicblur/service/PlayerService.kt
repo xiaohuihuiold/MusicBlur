@@ -26,6 +26,7 @@ import com.xhhold.musicblur.util.MusicUtil
 import com.xhhold.musicblur.util.UrlUtil
 import okhttp3.*
 import java.io.IOException
+import java.lang.ref.WeakReference
 import java.net.URLDecoder
 import java.util.*
 
@@ -33,7 +34,7 @@ import java.util.*
 class PlayerService : Service(), IMedia, AudioManager.OnAudioFocusChangeListener, Runnable {
 
     private val iBinder = MediaControllerBinder()
-    private val iMediaControllerCallbacks = ArrayList<IMediaControllerCallback>()
+    private val iMediaControllerCallbacks = ArrayList<WeakReference<IMediaControllerCallback>>()
     private val musicList = ArrayList<MusicInfo>()
 
     //private val audioFocusRequest: AudioFocusRequest=AudioFocusRequest.Builder()
@@ -48,6 +49,8 @@ class PlayerService : Service(), IMedia, AudioManager.OnAudioFocusChangeListener
     private var index: Int = 0
     private var neteaseMusicInfo: NeteaseMusicInfo? = null
     private var lyricLineTemp: LyricLine? = null
+
+    private var obj = java.lang.Object()
 
     override fun onCreate() {
         super.onCreate()
@@ -138,9 +141,11 @@ class PlayerService : Service(), IMedia, AudioManager.OnAudioFocusChangeListener
             if (!isRun) continue
             update(mediaPlayerManager?.getMusicCurrentTime() ?: 0,
                     mediaPlayerManager?.getMusicDurationTime() ?: 0)
-            for (callBack in iMediaControllerCallbacks) {
-                callBack.onUpdateTime(mediaPlayerManager?.getMusicCurrentTime() ?: 0,
-                        mediaPlayerManager?.getMusicDurationTime() ?: 0)
+            synchronized(obj) {
+                for (callBack in iMediaControllerCallbacks) {
+                    callBack.get()?.onUpdateTime(mediaPlayerManager?.getMusicCurrentTime() ?: 0,
+                            mediaPlayerManager?.getMusicDurationTime() ?: 0)
+                }
             }
         }
     }
@@ -165,7 +170,7 @@ class PlayerService : Service(), IMedia, AudioManager.OnAudioFocusChangeListener
 
     private fun play(musicInfo: MusicInfo) {
         for (callBack in iMediaControllerCallbacks) {
-            callBack.onUpdateInfo(musicInfo)
+            callBack.get()?.onUpdateInfo(musicInfo)
         }
         neteaseMusicInfo = null
         isRun = false
@@ -276,11 +281,27 @@ class PlayerService : Service(), IMedia, AudioManager.OnAudioFocusChangeListener
         }
 
         override fun addMediaControllerCallback(iMediaControllerCallback: IMediaControllerCallback) {
-            iMediaControllerCallbacks.add(iMediaControllerCallback)
+            synchronized(obj) {
+                iMediaControllerCallbacks.add(WeakReference(iMediaControllerCallback))
+            }
         }
 
         override fun removeMediaControllerCallback(iMediaControllerCallback: IMediaControllerCallback) {
-            iMediaControllerCallbacks.remove(iMediaControllerCallback)
+            synchronized(obj) {
+                var size = iMediaControllerCallbacks.size
+                var count = 0
+                for (i in 0 until size) {
+                    if (iMediaControllerCallbacks[i - count].get() ==
+                            iMediaControllerCallback || iMediaControllerCallbacks[i - count].get()
+                            == null) {
+                        iMediaControllerCallbacks.remove(iMediaControllerCallbacks[i - count])
+                        count++
+                    }
+                }
+                for (callBack in iMediaControllerCallbacks) {
+                    Log.i("Callback", callBack.get()?.javaClass?.simpleName)
+                }
+            }
         }
 
     }

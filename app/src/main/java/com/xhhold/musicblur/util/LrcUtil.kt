@@ -58,7 +58,7 @@ class LrcUtil {
             val m = time.substring(0, 2).toInt()
             val s = time.substring(3, 5).toInt()
             val ss = time.substring(6, 8).toInt()
-            return m * 60 * 1000 + s * 1000
+            return m * 60 * 1000 + s * 1000+ss*10
         }
     }
 }

@@ -2,6 +2,7 @@ package com.xhhold.musicblur.app
 
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import com.xhhold.musicblur.manager.MediaPlayerManager
 import com.xhhold.musicblur.service.PlayerService
 import java.lang.ref.WeakReference
@@ -35,6 +36,12 @@ class ActivityManager private constructor() {
         MediaPlayerManager.INSTANCE.stop()
         MyApplication.context.stopService(Intent(MyApplication.context, PlayerService::class.java))
         android.os.Process.killProcess(android.os.Process.myPid())
+    }
+
+    fun printAll() {
+        for (weak in activityList) {
+            Log.i("Activity", weak.get()?.componentName.toString())
+        }
     }
 
     private fun finishAllActivity() {

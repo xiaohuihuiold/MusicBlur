@@ -37,9 +37,9 @@ class BlurManager private constructor() {
     }
 
     private fun update() {
-        val size = blurs.size - 1
+        val size = blurs.size
         var count = 0
-        for (i in 0..size) {
+        for (i in 0 until size) {
             if (blurs[i - count].get() == null) {
                 blurs.removeAt(i - count)
                 count++
