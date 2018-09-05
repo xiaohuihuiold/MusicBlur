@@ -59,6 +59,7 @@ class MediaNotificationManager private constructor() {
         } else {
             builder = Notification.Builder(MyApplication.context)
             lrcBuild = Notification.Builder(MyApplication.context)
+            lrcBuild?.setSmallIcon(R.drawable.ic_launcher_foreground)
         }
         builder?.setContentIntent(PendingIntent.getActivity(MyApplication.context, 0, Intent(MyApplication.context,
                 PlayerActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT))
