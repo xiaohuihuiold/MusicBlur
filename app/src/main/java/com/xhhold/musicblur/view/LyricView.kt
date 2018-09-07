@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import com.xhhold.musicblur.manager.IMusicInfo
 import com.xhhold.musicblur.manager.LyricManager
 import com.xhhold.musicblur.model.MusicInfo
@@ -73,6 +74,7 @@ class LyricView : View, IMusicInfo {
                 valueAnimator = null
             }
             valueAnimator = ValueAnimator.ofInt(lyricY, (paintSize * index * 2.5f).toInt())
+            valueAnimator?.interpolator = DecelerateInterpolator()
             valueAnimator?.addUpdateListener {
                 val value = it.animatedValue as Int
                 lyricY = value
