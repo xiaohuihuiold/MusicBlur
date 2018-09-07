@@ -6,19 +6,16 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.IBinder
-import com.xhhold.musicblur.manager.IMedia
-import com.xhhold.musicblur.manager.MediaNotificationManager
-import com.xhhold.musicblur.manager.MediaPlayerManager
 import com.xhhold.musicblur.model.MusicInfo
 import com.xhhold.musicblur.util.ActionUtil
 import android.provider.MediaStore
 import android.database.Cursor
-import com.xhhold.musicblur.manager.BlurManager
 import android.media.AudioManager
 import android.util.Log
 import com.google.gson.JsonParser
 import com.xhhold.musicblur.IMediaController
 import com.xhhold.musicblur.IMediaControllerCallback
+import com.xhhold.musicblur.manager.*
 import com.xhhold.musicblur.model.LyricLine
 import com.xhhold.musicblur.model.NeteaseMusicInfo
 import com.xhhold.musicblur.util.LrcUtil
@@ -29,6 +26,7 @@ import java.io.IOException
 import java.lang.ref.WeakReference
 import java.net.URLDecoder
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class PlayerService : Service(), IMedia, AudioManager.OnAudioFocusChangeListener, Runnable {
@@ -156,15 +154,18 @@ class PlayerService : Service(), IMedia, AudioManager.OnAudioFocusChangeListener
         }
         val neteaseLyrics = neteaseMusicInfo?.lyric?.lyrics ?: return
         var lyricLine: LyricLine? = null
-        for (l in neteaseLyrics) {
+        var index = 0
+        for ((i, l) in neteaseLyrics.withIndex()) {
             if (curr > l.time) {
                 lyricLine = l
+                index = i
             }
         }
         if (lyricLineTemp != lyricLine && lyricLine?.lyric != null) {
             //Log.e("Lrc", "test\n${lyricLine.time}\n${lyricLine.lyric}\n${lyricLine.lyricTran}")
             mediaNotificationManager?.update(lyricLine.lyric, lyricLine.lyricTran)
             lyricLineTemp = lyricLine
+            LyricManager.INSTANCE.onUpdate(index)
         }
     }
 
@@ -172,6 +173,7 @@ class PlayerService : Service(), IMedia, AudioManager.OnAudioFocusChangeListener
         for (callBack in iMediaControllerCallbacks) {
             callBack.get()?.onUpdateInfo(musicInfo)
         }
+        LyricManager.INSTANCE.onMusicInfoUpdate(musicInfo)
         neteaseMusicInfo = null
         isRun = false
         mediaPlayerManager?.play(musicInfo.path ?: "")
@@ -218,6 +220,8 @@ class PlayerService : Service(), IMedia, AudioManager.OnAudioFocusChangeListener
                             return getNeteaseInfo(musicInfo, true)
                         }
                         neteaseMusicInfo = NeteaseMusicInfo(id, name, neteaseLyric)
+                        musicInfo.neteaseMusicInfo = neteaseMusicInfo
+                        LyricManager.INSTANCE.onNeteaseMusicInfoUpdate(neteaseMusicInfo)
                     }
                 })
             }

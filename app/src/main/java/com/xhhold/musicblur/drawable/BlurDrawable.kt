@@ -26,6 +26,7 @@ class BlurDrawable(private var view: View) : Drawable(), IBlur {
     private var isOffset: Boolean = false
 
     private val paint = Paint()
+    private var valueAnimator: ValueAnimator? = null
 
     init {
         BlurManager.INSTANCE.addBlur(this)
@@ -93,14 +94,18 @@ class BlurDrawable(private var view: View) : Drawable(), IBlur {
                 offsetY = actionBarHeight + getStatusBarHeight(view.context)
             }
         }
-        val valueAnimator = ValueAnimator.ofInt(0, 255)
-        valueAnimator.duration = 1000
-        valueAnimator.addUpdateListener {
+        if (valueAnimator != null) {
+            valueAnimator?.cancel()
+            valueAnimator = null
+        }
+        valueAnimator = ValueAnimator.ofInt(0, 255)
+        valueAnimator?.duration = 1000
+        valueAnimator?.addUpdateListener {
             val value = it.animatedValue as Int
             alphaBitN = value
             view.invalidate()
         }
-        valueAnimator.start()
+        valueAnimator?.start()
     }
 
     override fun runOnUiThread(runnable: () -> Unit) {

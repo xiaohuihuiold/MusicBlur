@@ -8,4 +8,9 @@
     tools:context=".activity.PlayerActivity"
     tools:showIn="@layout/activity_player">
 
+    <com.xhhold.musicblur.view.LyricView
+        android:id="@+id/player_lyric"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 </android.support.constraint.ConstraintLayout>

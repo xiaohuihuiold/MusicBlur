@@ -13,4 +13,8 @@ class PlayerActivity : BaseActivity() {
         setSupportActionBar(toolbar)
     }
 
+    override fun onUpdateTime(current: Int, duration: Int) {
+
+    }
+
 }

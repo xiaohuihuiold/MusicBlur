@@ -5,19 +5,21 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class MusicInfo(var isLocal: Boolean, var name: String?, var artist: String?, var path:
-String?, var albumID: Int, var albumImage: Bitmap?) : Parcelable {
+String?, var albumID: Int, var albumImage: Bitmap?, var neteaseMusicInfo: NeteaseMusicInfo?) :
+        Parcelable {
 
     constructor(name: String?, artist: String?, path:
-    String?, albumID: Int, albumImage: Bitmap?) : this(true, name, artist, path, albumID, albumImage)
+    String?, albumID: Int, albumImage: Bitmap?) : this(true, name, artist, path, albumID,
+            albumImage, null)
 
     constructor(name: String?, artist: String?, path:
-    String?, albumImage: Bitmap?) : this(true, name, artist, path, 0, albumImage)
+    String?, albumImage: Bitmap?) : this(true, name, artist, path, 0, albumImage, null)
 
     constructor(name: String?, artist: String?, path:
-    String?) : this(true, name, artist, path, 0, null)
+    String?) : this(true, name, artist, path, 0, null, null)
 
     constructor(name: String?, artist: String?, path:
-    String?, albumID: Int) : this(true, name, artist, path, albumID, null)
+    String?, albumID: Int) : this(true, name, artist, path, albumID, null, null)
 
     constructor(parcel: Parcel) : this(
             parcel.readByte() != 0.toByte(),
@@ -25,7 +27,8 @@ String?, var albumID: Int, var albumImage: Bitmap?) : Parcelable {
             parcel.readString(),
             parcel.readString(),
             parcel.readInt(),
-            parcel.readParcelable(Bitmap::class.java.classLoader))
+            parcel.readParcelable(Bitmap::class.java.classLoader),
+            parcel.readParcelable(NeteaseMusicInfo::class.java.classLoader))
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeByte(if (isLocal) 1 else 0)
@@ -34,6 +37,7 @@ String?, var albumID: Int, var albumImage: Bitmap?) : Parcelable {
         parcel.writeString(path)
         parcel.writeInt(albumID)
         parcel.writeParcelable(albumImage, flags)
+        parcel.writeParcelable(neteaseMusicInfo, flags)
     }
 
     override fun describeContents(): Int {
